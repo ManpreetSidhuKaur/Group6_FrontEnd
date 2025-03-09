@@ -1,168 +1,248 @@
 import SwiftUI
+import Charts
 
-struct LoginView: View {
-    @State private var email: String = "joe@gmail.com"
-    @State private var password: String = "123"
-    @State private var errorMessage: String = ""
-    @State private var isLoggedIn: Bool = false
-
+struct ContentView: View {
     var body: some View {
         NavigationView {
-            VStack {
-                Text("Login")
+            LoginView()
+                .navigationBarHidden(true)
+        }
+    }
+}
+
+struct LoginView: View {
+    @State private var email = ""
+    @State private var password = ""
+    
+    var body: some View {
+        ZStack {
+            LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.white]), startPoint: .top, endPoint: .bottom)
+                .edgesIgnoringSafeArea(.all)
+            
+            VStack(spacing: 20) {
+                Text("Welcome to Mind Mate")
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                    .padding(.bottom, 20)
+                    .foregroundColor(.blue)
 
-                TextField("Email", text: $email)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .keyboardType(.emailAddress)
-                    .autocapitalization(.none)
-                    .padding()
-
-                SecureField("Password", text: $password)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding()
-
-                if !errorMessage.isEmpty {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
+                VStack(spacing: 15) {
+                    TextField("Email", text: $email)
                         .padding()
-                }
-
-                NavigationLink(
-                    destination: AIChatView(),
-                    isActive: $isLoggedIn
-                ) {
-                    EmptyView()
-                }
-
-                Button(action: login) {
-                    Text("Login")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
+                        .background(Color.white)
                         .cornerRadius(10)
+                        .shadow(radius: 3)
+                    
+                    SecureField("Password", text: $password)
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(10)
+                        .shadow(radius: 3)
+                    
+                    NavigationLink(destination: ProfileView()) {
+                        Text("Login")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            .shadow(radius: 3)
+                    }
                 }
                 .padding()
+                .background(Color.white.opacity(0.8))
+                .cornerRadius(15)
+                .shadow(radius: 5)
+                .padding(.horizontal)
+            }
+        }
+    }
+}
 
+struct ProfileView: View {
+    @State private var selectedMood: String = "Neutral"
+    
+    let moods = ["Great", "Good", "Neutral", "Bad", "Terrible"]
+    
+    var body: some View {
+        ZStack {
+            Color.blue.opacity(0.1).edgesIgnoringSafeArea(.all)
+            
+            VStack(spacing: 20) {
+                Image(systemName: "person.circle.fill")
+                    .resizable()
+                    .frame(width: 120, height: 120)
+                    .foregroundColor(.blue)
+                    .shadow(radius: 5)
+                
+                VStack(spacing: 8) {
+                    Text("Robert Frye").font(.title2).bold()
+                    Text("robertfrye@gmail.com").foregroundColor(.gray)
+                    Text("Age: 21 | Gender: Male").foregroundColor(.gray)
+                }
+                
+                VStack(spacing: 10) {
+                    Text("How are you feeling today?")
+                        .font(.headline)
+                    
+                    Picker("Mood", selection: $selectedMood) {
+                        ForEach(moods, id: \ .self) { mood in
+                            Text(mood)
+                        }
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .padding()
+                    
+                    Text("Current Mood: \(selectedMood)")
+                        .font(.subheadline)
+                        .foregroundColor(.blue)
+                        .bold()
+                }
+                .padding()
+                .background(Color.white)
+                .cornerRadius(10)
+                .shadow(radius: 3)
+                
+                VStack(spacing: 15) {
+                    NavigationLink(destination: UserReportView()) {
+                        Text("View Report")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            .shadow(radius: 3)
+                    }
+                    
+                    NavigationLink(destination: ChatView()) {
+                        Text("Chat with AI")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            .shadow(radius: 3)
+                    }
+                }
+                .padding()
+            }
+            .padding()
+            .background(Color.white)
+            .cornerRadius(15)
+            .shadow(radius: 5)
+            .padding(.horizontal)
+        }
+    }
+}
+
+struct UserReportView: View {
+    let weeklyMoodData: [MoodEntry] = [
+        MoodEntry(day: "Mon", mood: 3),
+        MoodEntry(day: "Tue", mood: 4),
+        MoodEntry(day: "Wed", mood: 2),
+        MoodEntry(day: "Thu", mood: 5),
+        MoodEntry(day: "Fri", mood: 3),
+        MoodEntry(day: "Sat", mood: 4),
+        MoodEntry(day: "Sun", mood: 5)
+    ]
+    
+    var body: some View {
+        ZStack {
+            Color.blue.opacity(0.1).edgesIgnoringSafeArea(.all)
+            
+            VStack(alignment: .leading, spacing: 15) {
+                Text("User Report")
+                    .font(.title2)
+                    .bold()
+                
+                Divider()
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Name: Robert Frye")
+                    Text("Mood: Fair")
+                    Text("Progress: Good")
+                    Text("Recommended Exercises: Meditation and rest")
+                }
+                .padding()
+                .background(Color.white)
+                .cornerRadius(10)
+                .shadow(radius: 3)
+                
+                Text("Weekly Mood Trend")
+                    .font(.headline)
+                    .padding(.top)
+                
+                Chart(weeklyMoodData) { entry in
+                    BarMark(
+                        x: .value("Day", entry.day),
+                        y: .value("Mood", entry.mood)
+                    )
+                    .foregroundStyle(entry.mood >= 4 ? Color.green : Color.red.opacity(0.8))
+                }
+                .frame(height: 200)
+                .padding()
+                .background(Color.white)
+                .cornerRadius(10)
+                .shadow(radius: 3)
+                
                 Spacer()
             }
             .padding()
         }
     }
-
-    func login() {
-        if email == "joe@gmail.com" && password == "123" {
-            isLoggedIn = true
-        } else {
-            errorMessage = "Invalid email or password."
-        }
-    }
 }
 
-struct AIChatView: View {
-    @State private var userInput: String = ""
-    @State private var aiResponse: String = "Hello! How can I assist you today?"
-    @State private var isLoading: Bool = false
+struct MoodEntry: Identifiable {
+    let id = UUID()
+    let day: String
+    let mood: Int
+}
+
+struct ChatView: View {
+    @State private var message = ""
+    @State private var chatHistory = ["Hi, I'm not feeling very good today.", "What seems to be the problem?"]
     
-    let apiKey = "AIzaSyDxrawSiwNWeyZtoCNIynBH-CE7Ns4b-Zc" // 🔴 Replace with your actual key
-
     var body: some View {
-        VStack {
-            Text("Gemini AI Chat")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .padding()
-
-            ScrollView {
-                Text(aiResponse)
-                    .padding()
-                    .background(Color.gray.opacity(0.2))
-                    .cornerRadius(10)
-            }
-            .frame(height: 200)
-
-            TextField("Type your message...", text: $userInput)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-
-            Button(action: fetchAIResponse) {
-                Text("Send")
-                    .frame(maxWidth: .infinity)
+        ZStack {
+            Color.blue.opacity(0.1).edgesIgnoringSafeArea(.all)
+            
+            VStack {
+                List(chatHistory, id: \.self) { message in
+                    Text(message)
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(10)
+                        .shadow(radius: 2)
+                }
+                
+                HStack {
+                    TextField("Type a message...", text: $message)
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(10)
+                        .shadow(radius: 2)
+                    
+                    Button("Send") {
+                        sendMessageToAI()
+                    }
                     .padding()
                     .background(Color.blue)
                     .foregroundColor(.white)
                     .cornerRadius(10)
+                    .shadow(radius: 3)
+                }
+                .padding()
             }
-            .padding()
-
-            if isLoading {
-                ProgressView()
-                    .padding()
-            }
-
-            Spacer()
         }
-        .padding()
     }
+    
+    func sendMessageToAI() {
+        guard !message.isEmpty else { return }
+        chatHistory.append("You: \(message)")
+        message = ""
 
-    func fetchAIResponse() {
-        guard !userInput.isEmpty else { return }
-
-        // Show loading state
-        isLoading = true
-
-        let apiURL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=\(apiKey)"
-        let requestBody: [String: Any] = [
-            "contents": [
-                [
-                    "parts": [
-                        ["text": userInput]
-                    ]
-                ]
-            ]
-        ]
-
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: requestBody) else { return }
-
-        var request = URLRequest(url: URL(string: apiURL)!)
-        request.httpMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = jsonData
-
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            DispatchQueue.main.async {
-                self.isLoading = false // Hide loading spinner
-            }
-
-            if let error = error {
-                print("Error: \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    aiResponse = "Failed to get response. Try again."
-                }
-                return
-            }
-
-            if let data = data, let jsonResponse = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let contents = jsonResponse["contents"] as? [[String: Any]],
-               let parts = contents.first?["parts"] as? [[String: Any]],
-               let text = parts.first?["text"] as? String {
-                DispatchQueue.main.async {
-                    aiResponse = text
-                }
-            } else {
-                DispatchQueue.main.async {
-                    aiResponse = "Failed to get response. Try again."
-                }
-            }
-        }.resume()
-    }
-}
-
-struct LoginView_Previews: PreviewProvider {
-    static var previews: some View {
-        LoginView()
+        // Simulated AI response (Replace this with real API call)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            chatHistory.append("AI: I'm here to help, tell me more.")
+        }
     }
 }
