@@ -1,4 +1,12 @@
-mport SwiftUI
+//
+//  ChatView.swift
+//  Group6_SE
+//
+//  Created by pk on 2025-03-09.
+//
+
+
+import SwiftUI
 
 struct ChatView: View {
     @StateObject private var viewModel = ChatViewModel()

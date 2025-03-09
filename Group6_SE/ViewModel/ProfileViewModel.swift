@@ -1,3 +1,11 @@
+//
+//  ProfileViewModel.swift
+//  Group6_SE
+//
+//  Created by pk on 2025-03-09.
+//
+
+
 import SwiftUI
 
 class ProfileViewModel: ObservableObject {
