@@ -12,7 +12,7 @@ struct LoginView: View {
     @State private var password = ""
     @State private var showAlert = false
     @State private var alertMessage = ""
-    @State private var isLoggedIn = false  // State variable for navigation
+    @State private var isLoggedIn = false
 
     var body: some View {
         NavigationView {
@@ -51,7 +51,7 @@ struct LoginView: View {
                                 .shadow(radius: 3)
                         }
 
-                        // Hidden NavigationLink that activates when isLoggedIn is true
+                       
                         NavigationLink(destination: ProfileView(), isActive: $isLoggedIn) {
                             EmptyView()
                         }
